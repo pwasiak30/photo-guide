@@ -244,6 +244,8 @@
   .astro-title-row b{font-size:.9rem;}
   .astro-when{font-size:.74rem;color:var(--gold-light);white-space:nowrap;font-weight:700;}
   .astro-detail{font-size:.8rem;color:var(--text-dim);margin-top:3px;line-height:1.4;}
+  .astro-hours{font-size:.78rem;color:var(--gold-light);margin-top:5px;line-height:1.4;font-weight:600;}
+  .astro-best{font-size:.78rem;color:var(--text-dim);margin-top:3px;line-height:1.4;}
   .astro-note{font-size:.76rem;color:var(--text-dim2);margin-top:4px;line-height:1.4;}
 
   .tabbar{display:flex;gap:8px;margin-bottom:14px;}
@@ -707,29 +709,63 @@
       note:'Skromny rój tuż po przesileniu zimowym.' }
   ];
 
-  // Realne daty zaćmień (NASA/timeanddate) — trzeba aktualizować po 2030 roku.
+  // Realne daty zaćmień (NASA/EclipseWise/timeanddate) — trzeba aktualizować po 2030 roku.
+  // hours/bestObserve/bestPhoto: godziny lokalne dla Polski (CET=UTC+1, CEST=UTC+2), null gdy zjawisko niewidoczne z Polski.
   var ECLIPSES = [
-    { date:'2026-02-17', type:'Zaćmienie obrączkowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Antarktydy i południowego Atlantyku.' },
-    { date:'2026-03-03', type:'Zaćmienie całkowite Księżyca', icon:'🌕', pl:'Widoczne w Polsce (przy bezchmurnym niebie) — obszar widoczności obejmuje Europę.' },
-    { date:'2026-08-12', type:'Zaćmienie całkowite Słońca', icon:'☀️', pl:'W Polsce widoczne jako częściowe, tuż przed zachodem Słońca (ok. 19:10–20:30) — zasłonięcie tarczy do ok. 85–88%, zależnie od regionu.' },
-    { date:'2026-08-28', type:'Zaćmienie częściowe Księżyca', icon:'🌗', pl:'Niewidoczne w Polsce — widoczne z Azji Wschodniej, Australii, Pacyfiku i obu Ameryk.' },
-    { date:'2027-02-06', type:'Zaćmienie obrączkowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Ameryki Południowej, Atlantyku i Afryki.' },
-    { date:'2027-02-20', type:'Zaćmienie półcieniowe Księżyca', icon:'🌕', pl:'Widoczne w Polsce, ale subtelne — zaćmienia półcieniowe trudno dostrzec gołym okiem.' },
-    { date:'2027-07-18', type:'Zaćmienie półcieniowe Księżyca', icon:'🌕', pl:'Niewidoczne w Polsce — widoczne z Azji Wschodniej, Australii, Pacyfiku i obu Ameryk.' },
-    { date:'2027-08-02', type:'Zaćmienie całkowite Słońca', icon:'☀️', pl:'Ścieżka całkowitości przez Maroko, Hiszpanię, Algierię, Libię, Egipt i Arabię Saudyjską — w Polsce możliwe tylko śladowe zaćmienie częściowe, sprawdź szczegóły bliżej terminu.' },
-    { date:'2027-08-17', type:'Zaćmienie półcieniowe Księżyca', icon:'🌕', pl:'Widoczne w Polsce, ale subtelne.' },
-    { date:'2028-01-12', type:'Zaćmienie częściowe Księżyca', icon:'🌗', pl:'Widoczne w Polsce.' },
-    { date:'2028-01-26', type:'Zaćmienie obrączkowe Słońca', icon:'🌑', pl:'Ścieżka przez Hiszpanię i Portugalię — w Polsce raczej niewidoczne.' },
-    { date:'2028-07-06', type:'Zaćmienie częściowe Księżyca', icon:'🌗', pl:'Niewidoczne w Polsce — widoczne z Azji Wschodniej, Australii, Pacyfiku i obu Ameryk.' },
-    { date:'2028-07-22', type:'Zaćmienie całkowite Słońca', icon:'☀️', pl:'Niewidoczne w Polsce — ścieżka całkowitości przez Australię i Nową Zelandię.' },
-    { date:'2028-12-31', type:'Zaćmienie całkowite Księżyca', icon:'🌕', pl:'Widoczne w Polsce — dobra okazja na sylwestrową fotografię Księżyca.' },
-    { date:'2029-01-14', type:'Zaćmienie częściowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Ameryki Północnej.' },
-    { date:'2029-06-12', type:'Zaćmienie częściowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Arktyki.' },
-    { date:'2029-06-26', type:'Zaćmienie całkowite Księżyca', icon:'🌕', pl:'Widoczne w Polsce.' },
-    { date:'2029-12-05', type:'Zaćmienie częściowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Antarktydy.' },
-    { date:'2029-12-20', type:'Zaćmienie całkowite Księżyca', icon:'🌕', pl:'Widoczne w Polsce.' },
-    { date:'2030-06-01', type:'Zaćmienie obrączkowe Słońca', icon:'🌑', pl:'Ścieżka przez Grecję i Turcję — w Polsce raczej niewidoczne lub tylko śladowo częściowe.' },
-    { date:'2030-11-25', type:'Zaćmienie całkowite Słońca', icon:'☀️', pl:'Niewidoczne w Polsce — ścieżka całkowitości przez południową Afrykę, Ocean Indyjski i Australię.' }
+    { date:'2026-02-17', type:'Zaćmienie obrączkowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Antarktydy i południowego Atlantyku.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2026-03-03', type:'Zaćmienie całkowite Księżyca', icon:'🌕', pl:'Niewidoczne w Polsce — całe zjawisko zachodzi w ciągu dnia (Księżyc jest wtedy pod horyzontem). Widoczne m.in. z Ameryki Północnej i Południowej, Pacyfiku oraz Azji Wschodniej.',
+      hours:'Przebieg (niewidoczny z Polski): P1 09:44 – U1 10:50 – maks. 12:34 – U3 13:03 – P4 15:23 (CET)', bestObserve:null, bestPhoto:null },
+    { date:'2026-08-12', type:'Zaćmienie całkowite Słońca', icon:'☀️', pl:'W Polsce widoczne jako częściowe, tuż przed zachodem Słońca — Słońce zachodzi jeszcze w trakcie zaćmienia (zasłonięcie tarczy do ok. 83–88%, zależnie od regionu). Pamiętaj o atestowanym filtrze słonecznym.',
+      hours:'Faza częściowa ok. 19:15–20:08 CEST (przerwana zachodem Słońca ok. 20:08)',
+      bestObserve:'Maksimum ok. 20:00–20:05 — Słońce nisko nad horyzontem, ok. 83–88% tarczy zasłonięte. Obserwuj od 19:15, żeby złapać cały przebieg do zachodu.',
+      bestPhoto:'Ok. 19:50–20:08 — sierp Słońca nisko nad horyzontem, można złapać w kadrze razem z krajobrazem (koniecznie z filtrem słonecznym na obiektywie do samego zachodu).' },
+    { date:'2026-08-28', type:'Zaćmienie częściowe Księżyca', icon:'🌗', pl:'Niewidoczne w Polsce — widoczne z Azji Wschodniej, Australii, Pacyfiku i obu Ameryk.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2027-02-06', type:'Zaćmienie obrączkowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Ameryki Południowej, Atlantyku i Afryki.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2027-02-20', type:'Zaćmienie półcieniowe Księżyca', icon:'🌕', pl:'Widoczne w Polsce, ale subtelne — zaćmienia półcieniowe trudno dostrzec gołym okiem.',
+      hours:'P1 22:12 – maks. 00:13 – P4 02:13 CET (noc z 20 na 21 lutego)',
+      bestObserve:'Ok. 00:13 (maksimum) — wtedy przyciemnienie tarczy Księżyca jest najbardziej zauważalne, choć nadal subtelne.',
+      bestPhoto:'Zrób serię zdjęć w oknie 23:30–00:45 i porównaj z ujęciem sprzed/po zaćmieniu, by uchwycić różnicę w jasności tarczy.' },
+    { date:'2027-07-18', type:'Zaćmienie półcieniowe Księżyca', icon:'🌕', pl:'Niewidoczne w Polsce — widoczne z Azji Wschodniej, Australii, Pacyfiku i obu Ameryk.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2027-08-02', type:'Zaćmienie całkowite Słońca', icon:'☀️', pl:'Ścieżka całkowitości przez Maroko, Hiszpanię, Algierię, Libię, Egipt i Arabię Saudyjską — w Polsce możliwe tylko śladowe zaćmienie częściowe, sprawdź szczegóły bliżej terminu.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2027-08-17', type:'Zaćmienie półcieniowe Księżyca', icon:'🌕', pl:'Niewidoczne w Polsce — zjawisko zachodzi po wschodzie Słońca i zachodzie Księżyca. Widoczne głównie z Ameryk, Australii i Pacyfiku.',
+      hours:'Przebieg (niewidoczny z Polski): P1 07:24 – maks. 09:14 – P4 11:03 (CEST)', bestObserve:null, bestPhoto:null },
+    { date:'2028-01-12', type:'Zaćmienie częściowe Księżyca', icon:'🌗', pl:'Widoczne w Polsce, nad ranem — płytkie zaćmienie (zasłonięte ok. 7% tarczy).',
+      hours:'P1 03:07 – U1 04:45 – maks. 05:13 – U4 05:42 – P4 07:19 CET (rano 12 stycznia)',
+      bestObserve:'Ok. 05:13 (maksimum) — obserwuj między U1 (04:45) a U4 (05:42), gdy cień jest najwyraźniejszy; Słońce wschodzi o ok. 07:40.',
+      bestPhoto:'Fotografuj w oknie 04:45–05:45 — Księżyc będzie nisko nad zachodnim horyzontem, jeszcze przed świtem.' },
+    { date:'2028-01-26', type:'Zaćmienie obrączkowe Słońca', icon:'🌑', pl:'Ścieżka przez Hiszpanię i Portugalię — w Polsce raczej niewidoczne.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2028-07-06', type:'Zaćmienie częściowe Księżyca', icon:'🌗', pl:'Niewidoczne w Polsce — widoczne z Azji Wschodniej, Australii, Pacyfiku i obu Ameryk.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2028-07-22', type:'Zaćmienie całkowite Słońca', icon:'☀️', pl:'Niewidoczne w Polsce — ścieżka całkowitości przez Australię i Nową Zelandię.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2028-12-31', type:'Zaćmienie całkowite Księżyca', icon:'🌕', pl:'Widoczne w Polsce od wschodu Księżyca (w trakcie fazy częściowej) — dobra okazja na sylwestrową fotografię Księżyca.',
+      hours:'Widoczne od wschodu Księżyca (ok. 15:33): U1 16:07 – początek całkowitości 17:16 – maks. 17:52 – koniec całkowitości 18:28 – U4 19:37 – P4 20:40 CET',
+      bestObserve:'Całkowitość 17:16–18:28 (maksimum ok. 17:52) — zaczerwieniony Księżyc wysoko nad horyzontem, bardzo dobra widoczność w sylwestrowy wieczór.',
+      bestPhoto:'Najlepsze ujęcia w trakcie całkowitości (17:16–18:28) — dłuższy czas naświetlania złapie czerwonawy odcień; ok. 16:00–16:30, tuż po wschodzie, zrób ujęcie z krajobrazem, gdy Księżyc jest jeszcze nisko i wygląda na większy.' },
+    { date:'2029-01-14', type:'Zaćmienie częściowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Ameryki Północnej.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2029-06-12', type:'Zaćmienie częściowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Arktyki.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2029-06-26', type:'Zaćmienie całkowite Księżyca', icon:'🌕', pl:'W Polsce widoczny tylko początek zjawiska, nisko nad zachodnim horyzontem tuż przed świtem — całkowitość (najciemniejsza faza) zachodzi już po zachodzie Księżyca i NIE jest widoczna z Polski.',
+      hours:'Widoczne tylko: P1 02:35 – U1 03:32 CEST, potem Księżyc zachodzi (ok. 04:16, razem ze wschodem Słońca)',
+      bestObserve:'Jedyne okno obserwacji: 02:35–04:00, nisko nad zachodnim horyzontem, zanim Księżyc zajdzie.',
+      bestPhoto:'Fotografuj między 03:00 a 03:45 — potrzebny odsłonięty widok w kierunku zachodnim, nisko nad horyzontem.' },
+    { date:'2029-12-05', type:'Zaćmienie częściowe Słońca', icon:'🌑', pl:'Niewidoczne w Polsce — widoczne z Antarktydy.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2029-12-20', type:'Zaćmienie całkowite Księżyca', icon:'🌕', pl:'Widoczne w Polsce przez całą noc — bardzo dobre warunki na obserwację i zdjęcia.',
+      hours:'P1 20:43 – U1 21:55 – U2 23:15 – maks. 23:42 – U3 00:09 – U4 01:29 – P4 02:41 CET (noc z 20 na 21 grudnia)',
+      bestObserve:'Całkowitość 23:15–00:09 (maksimum ok. 23:42) — Księżyc wysoko na niebie, idealne warunki na obserwację czerwonego zaćmienia.',
+      bestPhoto:'Sesja w oknie 23:15–00:09 na ujęcia całkowitości; dodatkowo 21:55–23:15 na serię pokazującą narastające zaciemnianie tarczy.' },
+    { date:'2030-06-01', type:'Zaćmienie obrączkowe Słońca', icon:'🌑', pl:'Ścieżka przez Grecję i Turcję — w Polsce raczej niewidoczne lub tylko śladowo częściowe.',
+      hours:null, bestObserve:null, bestPhoto:null },
+    { date:'2030-11-25', type:'Zaćmienie całkowite Słońca', icon:'☀️', pl:'Niewidoczne w Polsce — ścieżka całkowitości przez południową Afrykę, Ocean Indyjski i Australię.',
+      hours:null, bestObserve:null, bestPhoto:null }
   ];
 
   function nextMeteorShowerOccurrences(refDate){
@@ -780,25 +816,113 @@
     return candidates.slice(0, count).map(function(f){ return { date: f.date, distanceKm: Math.round(f.distance) }; });
   }
 
+  // Okna bez Księżyca w danym przedziale czasu (próbkowanie co 15 min) — używane
+  // zarówno przez "Niebo nocne" jak i przez godziny obserwacji wydarzeń astronomicznych.
+  function moonlessWindows(start, end){
+    if(!isValidDate(start) || !isValidDate(end) || end <= start) return [];
+    var stepMs = 15*60000;
+    var windows = [];
+    var curStart = null;
+    for(var t = start.getTime(); t <= end.getTime(); t += stepMs){
+      var d = new Date(t);
+      var pos = SunCalc.getMoonPosition(d, state.lat, state.lon);
+      var below = pos.altitude < 0;
+      if(below && curStart === null) curStart = d;
+      if(!below && curStart !== null){ windows.push([curStart, d]); curStart = null; }
+    }
+    if(curStart !== null) windows.push([curStart, end]);
+    return windows;
+  }
+
+  // Pełne okno ciemności (noc astronomiczna, z fallbackiem na zmierzch żeglarski/cywilny)
+  // dla nocy zaczynającej się w dniu peakNoon (wieczór peakNoon -> rano dnia następnego),
+  // plus "nadir" (przybliżona astronomiczna północ) do wyznaczenia drugiej połowy nocy.
+  function nightWindowFor(peakNoon){
+    var y = peakNoon.getUTCFullYear(), m = peakNoon.getUTCMonth()+1, d = peakNoon.getUTCDate();
+    var eveNoon = noonUTCFor(y, m, d);
+    var nextNoon = noonUTCFor(y, m, d + 1);
+    var t1 = SunCalc.getTimes(eveNoon, state.lat, state.lon);
+    var t2 = SunCalc.getTimes(nextNoon, state.lat, state.lon);
+    var start = t1.night || t1.nauticalDusk || t1.dusk || t1.sunset;
+    var end = t2.nightEnd || t2.nauticalDawn || t2.dawn || t2.sunrise;
+    return { start:start, end:end, nadir:t2.nadir, duskStart:t1.sunset, dawnEnd:t2.sunrise };
+  }
+
+  // Wyznacza najlepsze okno obserwacji roju meteorów danej nocy: preferuje drugą
+  // połowę nocy (po astronomicznej północy — radiant wyżej, mniej światła) i, jeśli
+  // to możliwe, okno bez Księżyca nad horyzontem.
+  function meteorBestWindow(win){
+    if(!isValidDate(win.start) || !isValidDate(win.end) || win.end <= win.start) return null;
+    var postMid = (isValidDate(win.nadir) && win.nadir > win.start && win.nadir < win.end) ? win.nadir : win.start;
+    var mWindows = moonlessWindows(win.start, win.end);
+    var best = null, bestOverlap = 0;
+    mWindows.forEach(function(w){
+      var os = Math.max(w[0].getTime(), postMid.getTime());
+      var oe = Math.min(w[1].getTime(), win.end.getTime());
+      if(oe - os > bestOverlap){ bestOverlap = oe - os; best = [new Date(os), new Date(oe)]; }
+    });
+    if(best) return { range: best, moonFree: true };
+    if(mWindows.length){
+      var largest = mWindows.reduce(function(a,b){ return (b[1]-b[0]) > (a[1]-a[0]) ? b : a; });
+      return { range: largest, moonFree: true };
+    }
+    return { range: [postMid, win.end], moonFree: false };
+  }
+
   function renderAstroEvents(dateNoon){
     var refY = dateNoon.getUTCFullYear(), refM = dateNoon.getUTCMonth()+1, refD = dateNoon.getUTCDate();
     var todayYMD = refY + '-' + pad(refM) + '-' + pad(refD);
 
     var showers = nextMeteorShowerOccurrences(dateNoon).map(function(o){
+      var win = nightWindowFor(o.date);
+      var hours, bestObserve, bestPhoto;
+      if(isValidDate(win.start) && isValidDate(win.end) && win.end > win.start){
+        hours = 'Widoczne całą noc: ' + fmtTime(win.start) + '–' + fmtTime(win.end) + ' (noc astronomiczna)';
+        var best = meteorBestWindow(win);
+        if(best){
+          var rangeTxt = fmtTime(best.range[0]) + '–' + fmtTime(best.range[1]);
+          bestObserve = rangeTxt + (best.moonFree
+            ? ' — bez zakłóceń od Księżyca, druga połowa nocy (radiant wyżej nad horyzontem).'
+            : ' — Księżyc będzie nad horyzontem całą noc, co ograniczy widoczność słabszych meteorów.');
+          bestPhoto = 'Ustaw kadr i ognisko jeszcze przy świetle (przed ' + fmtTime(win.start) + '), a serie zdjęć/timelapse rób w oknie ' + rangeTxt + '.';
+        }
+      } else {
+        hours = 'Brak pełnej nocy astronomicznej w tej lokalizacji i porze roku (białe noce) — obserwuj w najciemniejszej części nocy.';
+        bestObserve = isValidDate(win.nadir) ? ('ok. ' + fmtTime(win.nadir) + ' (astronomiczna północ, najciemniejszy moment)') : null;
+        bestPhoto = bestObserve ? ('Rób zdjęcia w okolicach ' + fmtTime(win.nadir) + ', gdy niebo jest najciemniejsze.') : null;
+      }
       return { date:o.date, icon:'☄️', title:o.shower.name,
         detail:'Szczyt aktywności · ZHR ~' + o.shower.zhr + '/h · radiant: ' + o.shower.radiant,
-        note:o.shower.note };
+        note:o.shower.note, hours:hours, bestObserve:bestObserve, bestPhoto:bestPhoto };
     });
 
     var eclipses = upcomingEclipses(todayYMD, 6).map(function(e){
       var d = parseYMD(e.date);
-      return { date: noonUTCFor(d.y, d.m, d.d), icon:e.icon, title:e.type, detail:e.pl, note:null };
+      return { date: noonUTCFor(d.y, d.m, d.d), icon:e.icon, title:e.type, detail:e.pl, note:null,
+        hours:e.hours || null, bestObserve:e.bestObserve || null, bestPhoto:e.bestPhoto || null };
     });
 
     var supermoons = findUpcomingSupermoons(dateNoon, 2).map(function(s){
+      var dayStart = new Date(Date.UTC(s.date.getUTCFullYear(), s.date.getUTCMonth(), s.date.getUTCDate(), 12, 0, 0));
+      var mt = SunCalc.getMoonTimes(dayStart, state.lat, state.lon, true);
+      var hours, bestObserve, bestPhoto;
+      if(mt.alwaysUp){
+        hours = 'Księżyc nad horyzontem przez całą dobę.';
+      } else if(mt.alwaysDown){
+        hours = 'Księżyc pod horyzontem przez całą dobę w tej lokalizacji tego dnia.';
+      } else if(isValidDate(mt.rise) || isValidDate(mt.set)){
+        hours = 'Widoczny od wschodu (' + (isValidDate(mt.rise) ? fmtTime(mt.rise) : '—') + ') do zachodu Księżyca (' + (isValidDate(mt.set) ? fmtTime(mt.set) : '—') + ').';
+      }
+      if(isValidDate(mt.rise)){
+        bestObserve = 'Cała noc, ale efekt najmocniejszy tuż po wschodzie (' + fmtTime(mt.rise) + ') lub tuż przed zachodem — złudzenie księżycowe sprawia, że nisko nad horyzontem Księżyc wygląda na większy.';
+        bestPhoto = 'Ok. ' + fmtTime(mt.rise) + ' (wschód) — stań kilka–kilkanaście km od odległego obiektu (wieża, budynek, wzgórze) w linii z Księżycem i użyj teleobiektywu, by uchwycić go dużym tuż nad horyzontem.';
+      } else {
+        bestObserve = 'Cała noc — pełnia widoczna niezależnie od pory.';
+        bestPhoto = 'Fotografuj, gdy Księżyc jest nisko nad horyzontem (blisko wschodu lub zachodu), najlepiej z odległym obiektem w kadrze.';
+      }
       return { date:s.date, icon:'🌝', title:'Superksiężyc (pełnia w perygeum)',
         detail:'Pełnia w odległości ok. ' + s.distanceKm.toLocaleString('pl-PL') + ' km od Ziemi — Księżyc widoczny nieco większy i jaśniejszy niż zwykle.',
-        note:null };
+        note:null, hours:hours, bestObserve:bestObserve, bestPhoto:bestPhoto };
     });
 
     var all = showers.concat(eclipses).concat(supermoons);
@@ -806,7 +930,7 @@
     all = all.slice(0, 8);
 
     var html = '<h2>🌠 Wydarzenia astronomiczne</h2>';
-    html += '<p class="note">Najbliższe roje meteorów, zaćmienia i superksiężyce, licząc od wybranego dnia. Terminy rojów meteorów są coroczne i orientacyjne; zaćmienia — realne, konkretne daty.</p>';
+    html += '<p class="note">Najbliższe roje meteorów, zaćmienia i superksiężyce, licząc od wybranego dnia. Terminy rojów meteorów są coroczne i orientacyjne; zaćmienia — realne, konkretne daty. Godziny liczone dla wybranej lokalizacji i przeliczone na jej strefę czasową.</p>';
 
     if(!all.length){
       html += '<p class="note">Brak zaplanowanych wydarzeń w najbliższym czasie.</p>';
@@ -821,6 +945,9 @@
           '<div class="astro-body">' +
             '<div class="astro-title-row"><b>' + escapeHtml(ev.title) + '</b><span class="astro-when">' + dateLabel + ' · ' + whenLabel + '</span></div>' +
             '<div class="astro-detail">' + escapeHtml(ev.detail) + '</div>' +
+            (ev.hours ? '<div class="astro-hours">🕒 ' + escapeHtml(ev.hours) + '</div>' : '') +
+            (ev.bestObserve ? '<div class="astro-best">👁️ <b>Najlepsza obserwacja:</b> ' + escapeHtml(ev.bestObserve) + '</div>' : '') +
+            (ev.bestPhoto ? '<div class="astro-best">📷 <b>Najlepsze zdjęcia:</b> ' + escapeHtml(ev.bestPhoto) + '</div>' : '') +
             (ev.note ? '<div class="astro-note">💡 ' + escapeHtml(ev.note) + '</div>' : '') +
           '</div>' +
         '</div>';
