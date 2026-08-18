@@ -1,0 +1,807 @@
+/* =====================================================================
+   ZŁOTA GODZINA — style.css
+   Estetyka: Fedora Project (inżynieryjna czystość, bento-grid, whitespace)
+             + Zorin OS (glassmorphism, zaokrąglenia 16px, gradienty, miękkie cienie)
+
+   STRUKTURA PLIKU:
+   1. Custom Properties (zmienne) — motyw light/dark
+   2. Reset i ustawienia bazowe
+   3. Layout pomocniczy (container, nagłówek strony)
+   4. Nawigacja + przełącznik motywu
+   5. Panel kontrolny (wyszukiwarka, GPS, data, ulubione)
+   6. Statusy i zakładki
+   7. Bento Grid / Karty wyników
+   8. Godziny fotograficzne, timeline, aparat
+   9. Wydarzenia astronomiczne, przeloty satelitów, księżyc
+   10. Pogoda, wykres słupkowy, okno ciemnego nieba
+   11. Mapa i kalendarz dni
+   12. Zakładka „Dobór sprzętu” (formularz + symulator podglądu)
+   13. Stopka
+   14. Mikrointerakcje / animacje
+   15. Media queries (mobile-first)
+   16. Dostępność (focus-visible, prefers-reduced-motion)
+===================================================================== */
+
+/* ---------------------------------------------------------------------
+   1. CUSTOM PROPERTIES
+   Aby zmienić kolorystykę, edytuj wyłącznie wartości w :root i [data-theme="dark"].
+   Reszta pliku odwołuje się tylko do tych zmiennych.
+--------------------------------------------------------------------- */
+:root {
+  --font-heading: 'Red Hat Display', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Menlo, monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 999px;
+
+  --blur-sm: 8px;
+  --blur-md: 16px;
+  --blur-lg: 28px;
+
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2rem;
+  --space-5: 3rem;
+  --space-6: 4.5rem;
+  --space-7: 7rem;
+
+  --container-max: 1180px;
+  --container-pad: 1.5rem;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-fast: 160ms var(--ease);
+  --transition-base: 260ms var(--ease);
+  --transition-slow: 420ms var(--ease);
+
+  /* ---- MOTYW: LIGHT (domyślny) ---- */
+  --color-bg: #f4f5f7;
+  --color-bg-alt: #eceef2;
+  --color-surface: rgba(255, 255, 255, 0.65);
+  --color-surface-solid: #ffffff;
+  --color-border: rgba(15, 23, 42, 0.08);
+  --color-text: #14181f;
+  --color-text-muted: #565f6e;
+  --color-text-subtle: #8890a0;
+
+  --accent-1: #2563eb;
+  --accent-2: #06b6d4;
+  --accent-3: #7c3aed;
+  --gradient-accent: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 55%, var(--accent-3) 100%);
+  --gradient-bg-glow: radial-gradient(60% 60% at 50% 0%, rgba(37, 99, 235, 0.16), transparent 70%);
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.14), 0 6px 16px rgba(15, 23, 42, 0.06);
+  --shadow-glow: 0 0 0 1px rgba(37, 99, 235, 0.12), 0 12px 32px rgba(37, 99, 235, 0.18);
+
+  /* Kolory statusów — używane przez werdykt sprzętowy, ocenę pogody i chmury.
+     Semantyka zachowana z oryginału (--good/--mid/--bad), tylko nazwane wg konwencji design systemu. */
+  --status-good: #16a34a;
+  --status-good-bg: rgba(22, 163, 74, 0.12);
+  --status-good-border: rgba(22, 163, 74, 0.35);
+  --status-warn: #d97706;
+  --status-warn-bg: rgba(217, 119, 6, 0.12);
+  --status-warn-border: rgba(217, 119, 6, 0.35);
+  --status-bad: #dc2626;
+  --status-bad-bg: rgba(220, 38, 38, 0.12);
+
+  /* Akcenty specyficzne dla aplikacji fotograficznej — złota/niebieska godzina */
+  --golden-hour: #d97706;
+  --golden-hour-light: #f59e0b;
+  --blue-hour: #2563eb;
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --color-bg: #0b0e14;
+  --color-bg-alt: #10141d;
+  --color-surface: rgba(23, 27, 38, 0.55);
+  --color-surface-solid: #151922;
+  --color-border: rgba(255, 255, 255, 0.09);
+  --color-text: #eef1f6;
+  --color-text-muted: #a4acbb;
+  --color-text-subtle: #6b7484;
+
+  --accent-1: #3b82f6;
+  --accent-2: #22d3ee;
+  --accent-3: #a855f7;
+  --gradient-accent: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 55%, var(--accent-3) 100%);
+  --gradient-bg-glow: radial-gradient(60% 60% at 50% 0%, rgba(59, 130, 246, 0.22), transparent 70%);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 0 1px rgba(59, 130, 246, 0.25), 0 12px 40px rgba(59, 130, 246, 0.28);
+
+  --status-good: #4ade80;
+  --status-good-bg: rgba(74, 222, 128, 0.14);
+  --status-good-border: rgba(74, 222, 128, 0.35);
+  --status-warn: #fbbf24;
+  --status-warn-bg: rgba(251, 191, 36, 0.14);
+  --status-warn-border: rgba(251, 191, 36, 0.35);
+  --status-bad: #f87171;
+  --status-bad-bg: rgba(248, 113, 113, 0.14);
+
+  --golden-hour: #f6ae2d;
+  --golden-hour-light: #fbd88a;
+  --blue-hour: #60a5fa;
+
+  color-scheme: dark;
+}
+
+/* ---------------------------------------------------------------------
+   2. RESET I USTAWIENIA BAZOWE
+--------------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+.hidden { display: none !important; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  background-image: var(--gradient-bg-glow);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: var(--color-text);
+  line-height: 1.6;
+  font-size: 16px;
+  min-height: 100vh;
+  padding-bottom: var(--space-5);
+  transition: background-color var(--transition-slow), color var(--transition-slow);
+}
+
+img, svg { display: block; max-width: 100%; }
+a { color: var(--accent-1); }
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+p { margin: 0; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------
+   3. LAYOUT POMOCNICZY
+--------------------------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-pad);
+}
+
+#app { padding-top: var(--space-4); }
+
+.page-hero { text-align: center; margin-bottom: var(--space-4); }
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.eyebrow__dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-2);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+}
+
+.page-hero h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: var(--space-1);
+}
+
+.page-hero .subtitle {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+}
+
+/* ---------------------------------------------------------------------
+   4. NAWIGACJA + PRZEŁĄCZNIK MOTYWU
+--------------------------------------------------------------------- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-surface);
+  backdrop-filter: blur(var(--blur-md)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--blur-md)) saturate(150%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 0.85rem;
+  gap: var(--space-2);
+}
+
+.navbar__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-decoration: none;
+  color: var(--color-text);
+}
+
+.navbar__logo strong {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.navbar__logo-mark { font-size: 1.15rem; }
+
+.theme-toggle {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  transform: rotate(-8deg) scale(1.05);
+  box-shadow: var(--shadow-md);
+}
+
+.theme-toggle__icon {
+  position: absolute;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.theme-toggle__icon--moon { opacity: 0; transform: scale(0.5) rotate(45deg); }
+.theme-toggle__icon--sun { opacity: 1; transform: scale(1) rotate(0deg); }
+
+[data-theme='dark'] .theme-toggle__icon--sun { opacity: 0; transform: scale(0.5) rotate(-45deg); }
+[data-theme='dark'] .theme-toggle__icon--moon { opacity: 1; transform: scale(1) rotate(0deg); }
+
+/* ---------------------------------------------------------------------
+   5. PANEL KONTROLNY (wyszukiwarka, GPS, data, ulubione)
+--------------------------------------------------------------------- */
+.controls {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-3);
+  margin: var(--space-3) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.search-wrap { position: relative; }
+
+input[type=text], input[type=date] {
+  width: 100%;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+input[type=text]:focus, input[type=date]:focus {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.suggestions {
+  position: absolute; left: 0; right: 0; top: calc(100% + 6px);
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  max-height: 260px; overflow-y: auto;
+  z-index: 1000;
+  box-shadow: var(--shadow-lg);
+}
+
+.suggestions.hidden { display: none; }
+
+.sugg-item { padding: 0.65rem 0.8rem; cursor: pointer; border-bottom: 1px solid var(--color-border); font-size: 0.92rem; }
+.sugg-item:last-child { border-bottom: none; }
+.sugg-item:hover, .sugg-item.active { background: rgba(37, 99, 235, 0.08); }
+.sugg-item small { display: block; color: var(--color-text-muted); font-size: 0.78rem; }
+
+.row { display: flex; gap: 0.65rem; }
+.row > * { flex: 1; }
+
+button {
+  background: var(--gradient-accent);
+  color: #ffffff;
+  border: none;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  box-shadow: var(--shadow-glow);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+button:hover { transform: translateY(-1px); box-shadow: 0 16px 40px rgba(37, 99, 235, 0.25); }
+button:active { transform: scale(0.98); }
+
+button.secondary {
+  background: var(--color-surface-solid);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+}
+
+button.secondary:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+
+button.fav-active {
+  background: var(--gradient-accent);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.fav-chips { display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+.fav-chips.hidden { display: none; }
+
+.fav-chip {
+  display: flex; align-items: center; gap: 0.45rem;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: 0.45rem 0.5rem 0.45rem 0.85rem;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.fav-chip .fc-name { cursor: pointer; }
+.fav-chip .fc-x { cursor: pointer; color: var(--color-text-subtle); font-size: 0.72rem; padding: 2px 4px; }
+.fav-chip .fc-x:hover { color: var(--status-bad); }
+
+/* ---------------------------------------------------------------------
+   6. STATUSY I ZAKŁADKI
+--------------------------------------------------------------------- */
+.status {
+  text-align: center;
+  padding: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.status.hidden, main.hidden { display: none; }
+
+.tabbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: var(--space-3);
+  grid-column: 1 / -1;
+}
+
+.tab-btn {
+  flex: 1;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 0.8rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  box-shadow: none;
+}
+
+.tab-btn.active {
+  background: var(--gradient-accent);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: var(--shadow-glow);
+}
+
+/* ---------------------------------------------------------------------
+   7. BENTO GRID / KARTY WYNIKÓW
+   Mobile: pojedyncza kolumna. Od 1024px: mozaika 2-kolumnowa,
+   wybrane karty (mapa, kalendarz) zajmują pełną szerokość.
+--------------------------------------------------------------------- */
+#tabDayPanel.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-3);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-3);
+  transition: box-shadow var(--transition-base), transform var(--transition-base);
+}
+
+.card:hover { box-shadow: var(--shadow-md); }
+.card:empty { display: none; }
+
+.card h2 {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+  display: flex; align-items: center; gap: 0.5rem;
+  color: var(--color-text);
+  font-weight: 700;
+  padding-left: 0.65rem;
+  border-left: 3px solid var(--accent-2);
+}
+
+.card h2 .muted { color: var(--color-text-subtle); font-weight: 400; font-size: 0.8rem; margin-left: auto; }
+
+.loc-name { font-size: 1.2rem; font-weight: 700; font-family: var(--font-heading); }
+.loc-sub { color: var(--color-text-muted); font-size: 0.85rem; margin-top: 0.15rem; }
+.loc-date { color: var(--accent-1); font-weight: 600; margin-top: var(--space-1); font-size: 0.95rem; }
+
+/* ---------------------------------------------------------------------
+   8. GODZINY FOTOGRAFICZNE, TIMELINE, APARAT
+--------------------------------------------------------------------- */
+.timeline-bar {
+  height: 22px;
+  border-radius: var(--radius-sm);
+  margin: var(--space-2) 0 6px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.timeline-now {
+  position: absolute; top: -4px; bottom: -4px; width: 2px;
+  background: var(--color-text);
+  box-shadow: 0 0 8px var(--color-text);
+}
+
+.timeline-now::after {
+  content: 'teraz';
+  position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+  font-size: 0.65rem; color: var(--color-text); white-space: nowrap;
+  font-family: var(--font-mono);
+}
+
+.photo-hours { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+
+.hour-block {
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid transparent;
+}
+
+.hour-block.gold { border-left-color: var(--golden-hour); }
+.hour-block.blue { border-left-color: var(--blue-hour); }
+
+.hour-block .hb-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); margin-bottom: 5px; }
+.hour-block .hb-range { font-size: 1.05rem; font-weight: 800; color: var(--color-text); white-space: nowrap; font-family: var(--font-mono); }
+.hour-block .hb-peak { margin-top: 7px; font-size: 0.78rem; color: var(--golden-hour); }
+.hour-block .hb-peak b { display: block; font-size: 0.95rem; }
+.hour-block.blue .hb-peak { color: var(--blue-hour); }
+
+.brand-toggle { display: flex; gap: 0.5rem; margin-bottom: var(--space-2); }
+
+.brand-btn {
+  flex: 1;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  padding: 0.6rem;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.86rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.brand-btn.active { background: var(--gradient-accent); color: #ffffff; border-color: transparent; }
+
+.cam-grid { display: flex; flex-direction: column; gap: var(--space-2); }
+
+.cam-block {
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2);
+}
+
+.cam-block .cb-title { font-weight: 700; margin-bottom: 4px; }
+.cam-block .cb-mode { color: var(--accent-3); font-size: 0.85rem; margin-bottom: 6px; }
+.cam-block .cb-row { display: flex; justify-content: space-between; gap: 0.65rem; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px dashed var(--color-border); }
+.cam-block .cb-row:last-of-type { border-bottom: none; }
+.cam-block .cb-row span { color: var(--color-text-muted); flex-shrink: 0; }
+.cam-block .cb-row b { text-align: right; font-weight: 600; font-family: var(--font-mono); }
+.cam-block .cb-tip { font-size: 0.78rem; color: var(--color-text-muted); margin-top: 6px; line-height: 1.4; }
+.muted-inline { display: block; color: var(--color-text-subtle); font-size: 0.72rem; font-weight: 400; }
+
+/* ---------------------------------------------------------------------
+   9. WYDARZENIA ASTRONOMICZNE, PRZELOTY SATELITÓW, KSIĘŻYC
+--------------------------------------------------------------------- */
+.events-group { margin-top: var(--space-2); }
+
+.events-group h3 {
+  font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-text-subtle);
+  margin: 0 0 6px;
+}
+
+.event-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 0; border-bottom: 1px dashed var(--color-border); font-size: 0.9rem;
+}
+.event-item:last-child { border-bottom: none; }
+.event-item .dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; flex-shrink: 0; }
+.event-item .label { display: flex; align-items: center; color: var(--color-text); }
+.event-item .time { font-weight: 700; color: var(--accent-1); font-family: var(--font-mono); }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-2); }
+.stat-box { background: var(--color-surface-solid); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.6rem 0.75rem; }
+.stat-box .val { font-size: 1.1rem; font-weight: 700; font-family: var(--font-heading); }
+.stat-box .lbl { font-size: 0.75rem; color: var(--color-text-muted); margin-top: 2px; }
+
+.moon-row { display: flex; align-items: center; gap: var(--space-3); }
+.moon-icon { font-size: 2.6rem; line-height: 1; }
+.moon-info .name { font-weight: 700; font-size: 1.05rem; }
+.moon-info .illum { color: var(--color-text-muted); font-size: 0.85rem; }
+
+.astro-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: var(--space-2); }
+.astro-item { background: var(--color-surface-solid); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.65rem 0.75rem; display: flex; gap: 0.65rem; align-items: flex-start; }
+.astro-icon { font-size: 1.3rem; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+.astro-body { flex: 1; min-width: 0; }
+.astro-title-row { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+.astro-title-row b { font-size: 0.9rem; }
+.astro-when { font-size: 0.74rem; color: var(--accent-1); font-weight: 700; text-align: right; font-family: var(--font-mono); }
+.astro-detail { font-size: 0.8rem; color: var(--color-text-muted); margin-top: 3px; line-height: 1.4; }
+.astro-hours { font-size: 0.78rem; color: var(--accent-1); margin-top: 5px; line-height: 1.4; font-weight: 600; }
+.astro-best { font-size: 0.78rem; color: var(--color-text-muted); margin-top: 3px; line-height: 1.4; }
+.astro-note { font-size: 0.76rem; color: var(--color-text-subtle); margin-top: 4px; line-height: 1.4; }
+
+/* ---------------------------------------------------------------------
+   10. POGODA, WYKRES SŁUPKOWY, OKNO CIEMNEGO NIEBA
+--------------------------------------------------------------------- */
+.weather-score {
+  display: flex; align-items: center; gap: var(--space-2);
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: var(--space-2); margin-top: var(--space-2);
+}
+.weather-score .emoji { font-size: 1.8rem; }
+.weather-score .label { font-weight: 700; }
+.weather-score .desc { color: var(--color-text-muted); font-size: 0.82rem; margin-top: 2px; }
+
+.bar-chart { display: flex; align-items: flex-end; gap: 5px; height: 70px; margin-top: var(--space-2); }
+.bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.bar .fill { width: 100%; border-radius: 2px 2px 0 0; background: var(--gradient-accent); }
+.bar .hr { font-size: 0.62rem; color: var(--color-text-subtle); margin-top: 4px; font-family: var(--font-mono); }
+
+.dark-window {
+  background: var(--color-surface-solid); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.6rem 0.75rem; margin-top: var(--space-1);
+  display: flex; justify-content: space-between; font-size: 0.88rem;
+}
+.dark-window .rng { font-weight: 700; color: var(--accent-1); font-family: var(--font-mono); }
+
+/* ---------------------------------------------------------------------
+   11. MAPA I KALENDARZ DNI
+--------------------------------------------------------------------- */
+.card--wide { grid-column: 1 / -1; }
+
+#mapEl {
+  height: 260px;
+  border-radius: var(--radius-md);
+  margin-top: var(--space-2);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.map-legend { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); font-size: 0.78rem; color: var(--color-text-muted); }
+.map-legend span { display: flex; align-items: center; gap: 5px; }
+.map-legend i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+
+.day-card {
+  background: var(--color-surface-solid); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.65rem 0.8rem; margin-bottom: 0.5rem;
+  display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;
+}
+.day-card .d-date { font-weight: 700; min-width: 64px; font-size: 0.88rem; }
+.day-card .d-date small { display: block; color: var(--color-text-muted); font-weight: 400; font-size: 0.72rem; }
+.day-card .d-times { flex: 1; font-size: 0.78rem; color: var(--color-text-muted); text-align: center; }
+.day-card .d-times b { color: var(--color-text); }
+.day-card .d-cloud { font-size: 0.85rem; min-width: 52px; text-align: right; }
+
+/* ---------------------------------------------------------------------
+   12. ZAKŁADKA „DOBÓR SPRZĘTU” (formularz + symulator podglądu)
+--------------------------------------------------------------------- */
+.gear-label { display: block; font-size: 0.75rem; color: var(--color-text-muted); margin: var(--space-2) 0 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+.gear-label:first-of-type { margin-top: 0; }
+
+select.gear-select {
+  width: 100%;
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 0.75rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.9rem;
+  outline: none;
+}
+select.gear-select:focus { border-color: var(--accent-1); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+
+.gear-verdict { padding: 0.65rem 0.8rem; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.86rem; margin-top: var(--space-3); }
+.gear-verdict.good { background: var(--status-good-bg); color: var(--status-good); border: 1px solid var(--status-good-border); }
+.gear-verdict.warn { background: var(--status-warn-bg); color: var(--status-warn); border: 1px solid var(--status-warn-border); }
+.gear-summary { margin-top: var(--space-2); background: var(--color-surface-solid); border: 1px solid var(--color-border); border-radius: var(--radius-md); padding: 0.6rem 0.75rem; }
+
+.preview-section { margin-top: var(--space-4); border-top: 1px solid var(--color-border); padding-top: var(--space-3); }
+.preview-title { font-size: 1rem; margin: 0 0 var(--space-2); font-family: var(--font-heading); }
+
+.preview-frame {
+  position: relative; width: 100%; aspect-ratio: 4/3; overflow: hidden; border-radius: var(--radius-md);
+  background: #000; border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  transition: filter 0.05s linear;
+}
+.preview-zoom { position: absolute; inset: 0; transform-origin: 50% 50%; }
+.preview-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.preview-layer {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  background-size: cover; background-position: center;
+  opacity: 0; transition: opacity 0.1s linear;
+}
+.preview-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+#previewGrain {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%25" height="100%25" filter="url(%23n)"/></svg>');
+  mix-blend-mode: overlay; opacity: 0;
+}
+#previewTint { mix-blend-mode: overlay; }
+
+.photo-credit { font-size: 0.72rem; color: var(--color-text-subtle); margin: 6px 0 0; line-height: 1.4; }
+.photo-credit a { color: var(--color-text-muted); }
+
+.gear-range-row { margin-top: var(--space-3); }
+.gear-range-row label { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 0.8rem; color: var(--color-text-muted); margin-bottom: 6px; text-transform: none; letter-spacing: 0; }
+.gear-range-row label b { color: var(--accent-1); font-weight: 700; font-family: var(--font-mono); }
+
+input.gear-range {
+  width: 100%; -webkit-appearance: none; appearance: none; height: 6px; border-radius: var(--radius-pill);
+  background: var(--color-bg-alt); border: 1px solid var(--color-border); outline: none;
+}
+input.gear-range::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--gradient-accent); border: 2px solid var(--color-surface-solid); cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+input.gear-range::-moz-range-thumb {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--gradient-accent); border: 2px solid var(--color-surface-solid); cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+#simResetBtn { margin-top: var(--space-3); width: 100%; }
+
+.gs-row { display: flex; justify-content: space-between; gap: 0.65rem; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px dashed var(--color-border); }
+.gs-row:last-child { border-bottom: none; }
+.gs-row span { color: var(--color-text-muted); flex-shrink: 0; }
+.gs-row b { text-align: right; font-family: var(--font-mono); }
+
+.note { color: var(--color-text-muted); font-size: 0.82rem; line-height: 1.4; margin-top: var(--space-1); }
+
+/* ---------------------------------------------------------------------
+   13. STOPKA
+--------------------------------------------------------------------- */
+footer {
+  text-align: center;
+  color: var(--color-text-subtle);
+  font-size: 0.72rem;
+  padding: var(--space-4) 0.6rem 6px;
+  line-height: 1.6;
+}
+
+/* ---------------------------------------------------------------------
+   14. MIKROINTERAKCJE / ANIMACJE
+--------------------------------------------------------------------- */
+.card, .controls {
+  animation: rise 480ms var(--ease) both;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------------------------------------------------------------
+   15. MEDIA QUERIES — MOBILE FIRST
+--------------------------------------------------------------------- */
+
+/* Tablet ≥ 640px */
+@media (min-width: 640px) {
+  .photo-hours { grid-template-columns: 1fr 1fr; }
+  .stat-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Desktop small ≥ 768px */
+@media (min-width: 768px) {
+  #app { padding-top: var(--space-5); }
+  .row { gap: var(--space-2); }
+}
+
+/* Desktop large ≥ 1024px — mozaika bento: karty dnia w dwóch kolumnach,
+   mapa i kalendarz zajmują pełną szerokość (patrz .card--wide). */
+@media (min-width: 1024px) {
+  #tabDayPanel.bento-grid {
+    grid-template-columns: repeat(2, 1fr);
+    align-items: start;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   16. DOSTĘPNOŚĆ
+--------------------------------------------------------------------- */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.sugg-item:focus-visible,
+.fc-name:focus-visible,
+.fc-x:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
