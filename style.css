@@ -17,9 +17,10 @@
    11. Mapa i kalendarz dni
    12. Zakładka „Dobór sprzętu” (formularz + symulator podglądu)
    13. Stopka
-   14. Mikrointerakcje / animacje
-   15. Media queries (mobile-first)
-   16. Dostępność (focus-visible, prefers-reduced-motion)
+   14. Social FAB + linki społecznościowe (obowiązkowe na każdej stronie)
+   15. Mikrointerakcje / animacje
+   16. Media queries (mobile-first)
+   17. Dostępność (focus-visible, prefers-reduced-motion)
 ===================================================================== */
 
 /* ---------------------------------------------------------------------
@@ -745,8 +746,138 @@ footer {
   line-height: 1.6;
 }
 
+.footer__portfolio {
+  margin-top: var(--space-2);
+}
+
+.footer__portfolio a {
+  color: var(--accent-1);
+  font-weight: 600;
+}
+
+.footer__portfolio a:hover { text-decoration: underline; }
+
 /* ---------------------------------------------------------------------
-   14. MIKROINTERAKCJE / ANIMACJE
+   14. SOCIAL FAB + LINKI SPOŁECZNOŚCIOWE
+   Obowiązkowy element na KAŻDEJ stronie w tym design systemie (patrz
+   claude/styl-wizualny.md i instrukcje projektu). Dwie części:
+
+   a) .social-fab — stały, statyczny pasek z linkami do wszystkich profili
+      autora. Bez JS do rozwijania — to zwykła lista linków, zawsze widoczna.
+      Mobile (<768px): pozioma pigułka na dole, wyśrodkowana.
+      Desktop (≥768px): pionowa kolumna, przyklejona do lewej krawędzi,
+      wyśrodkowana w pionie.
+
+   b) .social-links — ten sam zestaw linków jako rząd ikon w stopce.
+
+   Aby dodać/usunąć platformę: dodaj/usuń <li> w OBU miejscach (.social-fab
+   i .social-links w stopce) — muszą zawsze być identyczne.
+--------------------------------------------------------------------- */
+.social-fab {
+  position: fixed;
+  z-index: 60;
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  box-shadow: var(--shadow-lg);
+
+  /* Mobile: pozioma pigułka, wyśrodkowana na dole ekranu */
+  left: 50%;
+  bottom: var(--space-2);
+  transform: translateX(-50%);
+  border-radius: var(--radius-pill);
+  max-width: calc(100vw - var(--space-3));
+  overflow-x: auto;
+}
+
+.social-fab__list {
+  display: flex;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.social-fab__link {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+  background: var(--color-surface-solid);
+  border: 1px solid var(--color-border);
+  transition: color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.social-fab__link:hover {
+  color: #fff;
+  background: var(--gradient-accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+/* Rząd ikon w stopce — ten sam zestaw, styl uproszczony (bez glass/fixed) */
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.social-links__link {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  transition: color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.social-links__link:hover {
+  color: var(--accent-1);
+  border-color: var(--accent-1);
+  transform: translateY(-2px);
+}
+
+/* Desktop ≥768px: FAB przechodzi w pionową kolumnę przy lewej krawędzi.
+   Odsunięta od karty ulubionych/formularza — nie koliduje z #app. */
+@media (min-width: 768px) {
+  .social-fab {
+    left: var(--space-2);
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: var(--radius-lg);
+    max-width: none;
+    overflow-x: visible;
+  }
+
+  .social-fab__list {
+    flex-direction: column;
+  }
+}
+
+/* ---------------------------------------------------------------------
+   15. MIKROINTERAKCJE / ANIMACJE
 --------------------------------------------------------------------- */
 .card, .controls {
   animation: rise 480ms var(--ease) both;
@@ -758,7 +889,7 @@ footer {
 }
 
 /* ---------------------------------------------------------------------
-   15. MEDIA QUERIES — MOBILE FIRST
+   16. MEDIA QUERIES — MOBILE FIRST
 --------------------------------------------------------------------- */
 
 /* Tablet ≥ 640px */
@@ -783,7 +914,7 @@ footer {
 }
 
 /* ---------------------------------------------------------------------
-   16. DOSTĘPNOŚĆ
+   17. DOSTĘPNOŚĆ
 --------------------------------------------------------------------- */
 a:focus-visible,
 button:focus-visible,
@@ -791,7 +922,9 @@ input:focus-visible,
 select:focus-visible,
 .sugg-item:focus-visible,
 .fc-name:focus-visible,
-.fc-x:focus-visible {
+.fc-x:focus-visible,
+.social-fab__link:focus-visible,
+.social-links__link:focus-visible {
   outline: 2px solid var(--accent-1);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
